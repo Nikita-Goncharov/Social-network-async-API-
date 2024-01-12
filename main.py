@@ -1,5 +1,8 @@
+import asyncio
+
 from aiohttp import web
 from handlers.handlers import users_handler
+from database.base import add_default_data
 
 
 if __name__ == "__main__":
@@ -10,4 +13,5 @@ if __name__ == "__main__":
         # web.route("*", "/api/v0.1/dialogs", dialogs_handler),
         # web.route("*", "/api/v0.1/messages", messages_handler),
     ])
+    asyncio.run(add_default_data())
     web.run_app(app)
