@@ -12,8 +12,12 @@ def insert_user_query():
     """)
 
 
-def select_all_users_query():
-    return text("select * from users")
+def select_users_query():
+    return text("select * from users limit (:count_users) offset (:start_from)")
+
+
+def users_count():
+    return text("select count(*) as total_users from users")
 
 
 def update_user_query(data_keys):
@@ -55,8 +59,11 @@ async def add_default_users(db):
             city varchar
             )
         """))
-        cursor = await conn.execute(select_all_users_query())
-        if not len(cursor.all()):
+        total_count_cursor = await conn.execute(users_count())
+        total_count = total_count_cursor.first()._asdict()
+        print("Add default users, total count: ", total_count)
+
+        if total_count["total_users"] == 0:
             for i in range(40):
                 avatar_name = avatars[randint(0, 11)]
                 user_data = {
@@ -72,11 +79,13 @@ async def add_default_users(db):
     await db.dispose()
 
 
-async def select_all_users(db):
+async def select_users(db, page=1, count=10):
     async with db.begin() as conn:
-        cursor = await conn.execute(select_all_users_query())
+        record_start_from = (page-1) * count
+        users_cursor = await conn.execute(select_users_query(), {"count_users": count, "start_from": record_start_from})
+        total_count_cursor = await conn.execute(users_count())
     await db.dispose()
-    return cursor.all()  # TODO: if users a lot then do pagination
+    return users_cursor.all(), total_count_cursor.first()
 
 
 async def create_new_user(db, user_data):

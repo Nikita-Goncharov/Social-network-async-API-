@@ -2,20 +2,26 @@ import json
 
 from aiohttp import web
 from database.base import database_engine
-from database.users_managment import select_all_users, create_new_user, update_user, delete_user
+from database.users_managment import select_users, create_new_user, update_user, delete_user
 
 
 async def users_handler(request):
     try:
         match request.method:
             case "GET":
-                users = await select_all_users(database_engine)
+                # url params: page=1, 2, 3 .....(by default=1) and count=10, 20, 33(by default=10, maximum=100)
+                page = int(request.rel_url.query.get("page", 1))
+                count = int(request.rel_url.query.get("count", 10))
+                count = count if count <= 100 else 100
+                users, total_count = await select_users(database_engine, page=page, count=count)
                 # Convert Row objects(from database) to dicts
                 users = [user._asdict() for user in users]  # TODO: not good
+                total_count = total_count._asdict()
                 users = {
                     "success": True,
                     "message": f"Users list",
-                    "users": users
+                    "users": users,
+                    "total_count": total_count
                 }
                 users_json = json.dumps(users)
                 return web.json_response(users_json, headers={"Access-Control-Allow-Origin": "*"})

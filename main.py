@@ -1,6 +1,7 @@
 import asyncio
 
 from aiohttp import web
+
 from handlers.handlers import users_handler
 from database.base import add_default_data
 
