@@ -61,8 +61,7 @@ async def add_default_users(db):
         """))
         total_count_cursor = await conn.execute(users_count())
         total_count = total_count_cursor.first()._asdict()
-        print("Add default users, total count: ", total_count)
-
+        
         if total_count["total_users"] == 0:
             for i in range(40):
                 avatar_name = avatars[randint(0, 11)]
@@ -84,8 +83,10 @@ async def select_users(db, page=1, count=10):
         record_start_from = (page-1) * count
         users_cursor = await conn.execute(select_users_query(), {"count_users": count, "start_from": record_start_from})
         total_count_cursor = await conn.execute(users_count())
+        users = users_cursor.mappings().all()
+        total_count = total_count_cursor.mappings().first()
     await db.dispose()
-    return users_cursor.all(), total_count_cursor.first()
+    return users, total_count
 
 
 async def create_new_user(db, user_data):
