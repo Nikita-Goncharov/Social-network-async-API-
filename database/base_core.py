@@ -4,7 +4,7 @@ import asyncio
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from .users_managment import add_default_users
+from database.core.users_managment_core import add_default_users
 
 load_dotenv()
 
@@ -18,5 +18,7 @@ database_engine = create_async_engine(f"postgresql+asyncpg://{user}:{password}@{
 
 async def add_default_data(db=database_engine):
     users_task = asyncio.create_task(add_default_users(db))
+    # TODO: maybe inside users ???
+    # profiles_task = asyncio.create_task(add_default_profiles(db))
     await users_task
 
