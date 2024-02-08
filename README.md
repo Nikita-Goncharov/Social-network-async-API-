@@ -13,7 +13,12 @@ DBUSER=user
 DBPASSWORD=password
 DBHOST=host
 DBNAME=databasename
+GITHUB_HOOK_SECRET=secret
 ```
+
+* Create webhook on push in github repository:
+  * Set url to your server with **/pull_repository_changes** endpoint, example: https://aiohttpsocialnetworkapi.pythonanywhere.com/pull_repository_changes
+  * Create secret key and add it to .env file
 
 * Start server:
 ```shell
@@ -97,4 +102,4 @@ python main.py
 
 ***
 
-TODO: add link to production server on pythonanywhere
+API on server: [Click](https://aiohttpsocialnetworkapi.pythonanywhere.com/)
