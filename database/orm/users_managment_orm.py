@@ -1,5 +1,5 @@
 from random import randint
-
+from datetime import date
 from sqlalchemy import select, func, insert, delete, update
 from faker import Faker
 
@@ -24,6 +24,9 @@ async def add_default_users(session):
     if total_count["total_users"] == 0:
         for i in range(40):
             avatar_name = avatars[randint(0, 11)]
+            profile = Profile(education="High school", web_site="Site link", birth_date=date.today())
+            session.add(profile)
+            await session.commit()
             user_data = {
                 "username": fake.name(),
                 "img": f"https://api.dicebear.com/7.x/adventurer/svg?seed={avatar_name}",
@@ -31,10 +34,11 @@ async def add_default_users(session):
                 "followed": fake.pybool(),
                 "country": fake.country(),
                 "city": fake.city(),
+                "profile": profile
             }
-            create_user_query = insert(User).values(**user_data)
-            # print(query)
-            await session.execute(create_user_query)
+            # create_user_query = insert(User).values(**user_data)
+            # await session.execute(create_user_query)
+            session.add(User(**user_data))
             await session.commit()
 
 
@@ -51,7 +55,11 @@ async def select_users(session, page=1, count=10):
 
 
 async def create_new_user(session, user_data):
-    await session.execute(insert(User).values(**user_data))
+    # TODO:
+    # profile = Profile(education="High school", web_site="Site link", birth_date=date.today())
+    # session.add(profile)
+    session.add(User(**user_data))
+    # await session.execute(insert(User).values(**user_data))
     await session.commit()
 
 
