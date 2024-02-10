@@ -3,7 +3,8 @@ from datetime import date
 from sqlalchemy import select, func, insert, delete, update
 from faker import Faker
 
-from models.main_models import User, Profile
+from models.main_models import User
+from .profiles_managment_orm import create_profile_instance
 # TODO: configure them in class
 
 
@@ -16,15 +17,13 @@ async def add_default_users(session):
         "Peanut", "Oliver", "Molly"
     ]
     count_users_query = select(func.count("*").label("total_users")).select_from(User)
-    # print(query)
     total_count_cursor = await session.execute(count_users_query)
     total_count = total_count_cursor.first()._asdict()
-    # print(total_count)
 
     if total_count["total_users"] == 0:
         for i in range(40):
             avatar_name = avatars[randint(0, 11)]
-            profile = Profile(education="High school", web_site="Site link", birth_date=date.today())
+            profile = create_profile_instance({"education": "High school", "web_site": "Site link", "birth_date": date.today()})
             session.add(profile)
             await session.commit()
             user_data = {
@@ -36,8 +35,6 @@ async def add_default_users(session):
                 "city": fake.city(),
                 "profile": profile
             }
-            # create_user_query = insert(User).values(**user_data)
-            # await session.execute(create_user_query)
             session.add(User(**user_data))
             await session.commit()
 
@@ -45,21 +42,24 @@ async def add_default_users(session):
 async def select_users(session, page=1, count=10):
     record_start_from = (page - 1) * count
 
-    # , {"count_users": count, "start_from": record_start_from}
     users_cursor = await session.execute(select(User).limit(count).offset(record_start_from))
     count_users_query = select(func.count("*").label("total_users")).select_from(User)
     total_count_cursor = await session.execute(count_users_query)
-    users = users_cursor.all()  # .mappings().
+    users = users_cursor.all()
     total_count = total_count_cursor.mappings().first()
     return users, total_count
 
 
 async def create_new_user(session, user_data):
-    # TODO:
-    # profile = Profile(education="High school", web_site="Site link", birth_date=date.today())
-    # session.add(profile)
     session.add(User(**user_data))
-    # await session.execute(insert(User).values(**user_data))
+    await session.commit()
+
+
+async def create_profile_for_user(session, user_id, profile_data):
+    profile = create_profile_instance(profile_data)
+    session.add(profile)
+    user = await session.execute(select(User).where(User.id == user_id))
+    user.first()[0].profile = profile
     await session.commit()
 
 

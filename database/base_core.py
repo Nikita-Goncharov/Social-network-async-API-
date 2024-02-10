@@ -13,12 +13,13 @@ password = os.environ.get('DBPASSWORD')
 host = os.environ.get('DBHOST')
 name = os.environ.get('DBNAME')
 
-database_engine = create_async_engine(f"postgresql+asyncpg://{user}:{password}@{host}:5432/{name}")
+# Postgresql: f"postgresql+asyncpg://{user}:{password}@{host}:5432/{name}"
+# MySQL:
+
+database_engine = create_async_engine(f"mysql+aiomysql://{user}:{password}@{host}/{name}")
 
 
 async def add_default_data(db=database_engine):
     users_task = asyncio.create_task(add_default_users(db))
-    # TODO: maybe inside users ???
-    # profiles_task = asyncio.create_task(add_default_profiles(db))
     await users_task
 

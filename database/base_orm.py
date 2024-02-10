@@ -14,7 +14,10 @@ password = os.environ.get('DBPASSWORD')
 host = os.environ.get('DBHOST')
 name = os.environ.get('DBNAME')
 
-database_engine = create_async_engine(f"postgresql+asyncpg://{user}:{password}@{host}:5432/{name}")
+# Postgresql: f"postgresql+asyncpg://{user}:{password}@{host}:5432/{name}"
+# MySQL:
+
+database_engine = create_async_engine(f"mysql+aiomysql://{user}:{password}@{host}/{name}")
 
 # async_sessionmaker: a factory for new AsyncSession objects.
 # expire_on_commit - don't expire objects after transaction commit
@@ -28,6 +31,4 @@ async def add_default_data():
         users_task = asyncio.create_task(add_default_users(session))
         await users_task
     await database_engine.dispose()
-    # TODO: maybe inside users ???
-    # profiles_task = asyncio.create_task(add_default_profiles(db))
 
