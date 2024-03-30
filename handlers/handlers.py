@@ -82,7 +82,7 @@ async def profiles_handler(request: web.Request) -> web.Response:
                         profile = await get_profile(session, profile_id)
                         profile_response = {
                             "success": True,
-                            "message": "Users list",
+                            "message": "User profile",
                             "profile": profile[0].as_dict()
                         }
                         return json_response(profile_response, headers={"Access-Control-Allow-Origin": "*"})

@@ -32,7 +32,11 @@ class User(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String(200))
-    img: Mapped[str] = mapped_column(String(250))
+    img: Mapped[str] = mapped_column(String(300))
+
+    email: Mapped[str] = mapped_column(String(250))
+    password_hash: Mapped[str] = mapped_column(String(300))
+
     status: Mapped[str] = mapped_column(String(250))
     followed: Mapped[bool]
     country: Mapped[str] = mapped_column(String(250))

@@ -102,4 +102,4 @@ python main.py
 
 ***
 
-API on server: [Click](https://aiohttpsocialnetworkapi.pythonanywhere.com/)
+API on server: [Click]()

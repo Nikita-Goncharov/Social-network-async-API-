@@ -11,6 +11,7 @@ Faker==22.2.0
 frozenlist==1.4.1
 greenlet==3.0.3
 idna==3.6
+MarkupSafe==2.1.5
 multidict==6.0.4
 psycopg2-binary==2.9.9
 pycparser==2.21
@@ -20,4 +21,5 @@ python-dotenv==1.0.0
 six==1.16.0
 SQLAlchemy==2.0.25
 typing_extensions==4.9.0
+Werkzeug==3.0.1
 yarl==1.9.4

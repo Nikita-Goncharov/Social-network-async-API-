@@ -1,7 +1,9 @@
 from random import randint
 from datetime import date
+
 from sqlalchemy import select, func, insert, delete, update
 from faker import Faker
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from models.main_models import User
 from .profiles_managment_orm import create_profile_instance
@@ -29,6 +31,8 @@ async def add_default_users(session):
             user_data = {
                 "username": fake.name(),
                 "img": f"https://api.dicebear.com/7.x/adventurer/svg?seed={avatar_name}",
+                "email": fake.email(),
+                "password": generate_password_hash(fake.password(length=10)),  # check_password_hash
                 "status": fake.sentence(nb_words=10),
                 "followed": fake.pybool(),
                 "country": fake.country(),
@@ -51,8 +55,13 @@ async def select_users(session, page=1, count=10):
 
 
 async def create_new_user(session, user_data):
-    session.add(User(**user_data))
-    await session.commit()
+    if password := user_data.get("password"):  # TODO handle else
+        password_hash = generate_password_hash(password)
+        user_data["password_hash"] = password_hash
+        session.add(User(**user_data))
+        await session.commit()
+    else:
+        pass
 
 
 async def create_profile_for_user(session, user_id, profile_data):
