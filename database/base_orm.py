@@ -4,7 +4,7 @@ import asyncio
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-from database.orm.users_managment_orm import add_default_users
+from database.orm.base_db_content import fill_db_with_default_data
 from models.main_models import Base
 
 load_dotenv()
@@ -28,7 +28,7 @@ async def add_default_data():
     async with database_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)  # because we should wait until tables will create
     async with async_session_factory() as session:
-        users_task = asyncio.create_task(add_default_users(session))
-        await users_task
+        task = asyncio.create_task(fill_db_with_default_data(session))
+        await task
     await database_engine.dispose()
 
