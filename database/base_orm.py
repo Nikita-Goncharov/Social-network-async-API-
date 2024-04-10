@@ -21,7 +21,7 @@ database_engine = create_async_engine(f"mysql+aiomysql://{user}:{password}@{host
 
 # async_sessionmaker: a factory for new AsyncSession objects.
 # expire_on_commit - don't expire objects after transaction commit
-async_session_factory = async_sessionmaker(database_engine, expire_on_commit=True)
+async_session_factory = async_sessionmaker(database_engine, expire_on_commit=False)
 
 
 async def add_default_data():

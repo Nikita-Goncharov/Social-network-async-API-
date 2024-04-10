@@ -4,7 +4,7 @@ from datetime import date
 from faker import Faker
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from models.main_models import User, Profile
+from models.main_models import User, Profile, Post
 from models.manager import Manager
 
 
@@ -41,4 +41,12 @@ async def fill_db_with_default_data(session):
                 "profile": profile,
             }
             user = await manager.create(User, user_data)
-
+            # Create posts for profile
+            random_post_count = randint(0, 4)
+            for _ in range(random_post_count):
+                post_data = {
+                    "title": " ".join(fake.text().split()[:2]),
+                    "description": fake.text(),
+                    "profile": profile.id
+                }
+                post = await manager.create(Post, post_data)

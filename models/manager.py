@@ -1,6 +1,8 @@
 from sqlalchemy import select, update, delete, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from models.main_models import Post
+
 
 # TODO: chaining
 class Manager:
@@ -46,4 +48,17 @@ class Manager:
 
     async def count(self, model):
         cursor = await self.session.execute(select(func.count("*").label("total")).select_from(model))
-        return cursor.first()._asdict()["total"]
+        return cursor.first().total
+
+
+class PostManager(Manager):
+    async def pagination_getting_posts_from_profile(self, model, profile_id, page=1, count=10):
+        record_start_from = (page - 1) * count
+
+        cursor = await self.session.execute(select(model).where(Post.profile == profile_id).limit(count).offset(record_start_from))
+
+        count_records = select(func.count("*").label("total")).select_from(model).where(Post.profile == profile_id)
+        total_count_cursor = await self.session.execute(count_records)
+        instances = cursor.all()
+        total_count = total_count_cursor.mappings().first()
+        return instances, dict(total_count)["total"]

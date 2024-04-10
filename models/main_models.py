@@ -1,11 +1,11 @@
 from datetime import date
 
-from sqlalchemy import ForeignKey, String, Date, Text, select, update, delete, func
+from sqlalchemy import ForeignKey, String, Date, Text
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncAttrs
 
 
 class Base(AsyncAttrs, DeclarativeBase):
@@ -15,6 +15,22 @@ class Base(AsyncAttrs, DeclarativeBase):
 
     async def save(self):
         pass
+
+
+class Dialog(Base):
+    __tablename__ = "dialog"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    first_profile: Mapped[int] = mapped_column(ForeignKey("profile.id"))
+    second_profile: Mapped[int] = mapped_column(ForeignKey("profile.id"))
+    created: Mapped[date] = mapped_column(Date(), default=date.today())
+
+
+class Message(Base):
+    __tablename__ = "message"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    text: Mapped[str] = mapped_column(String(300))
+    created: Mapped[date] = mapped_column(Date(), default=date.today())
+    dialog: Mapped[Dialog] = mapped_column(ForeignKey("dialog.id"))
 
 
 class Post(Base):

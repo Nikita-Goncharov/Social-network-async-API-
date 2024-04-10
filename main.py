@@ -4,8 +4,9 @@ from aiohttp import web
 
 from handlers.profile_handler import profile_handler
 from handlers.service_handler import github_pull_updates, api_docs
-from database.base_orm import add_default_data
 from handlers.auth_handler import logout_handler
+from handlers.post_handler import post_handler
+from database.base_orm import add_default_data
 
 
 if __name__ == "__main__":
@@ -16,7 +17,7 @@ if __name__ == "__main__":
         web.route("*", "/api/v0.2/profiles", profile_handler),
         web.post("/api/v0.2/pull_repository_changes", github_pull_updates),
         web.route("*", "/api/v0.2/logout", logout_handler),
-        # web.route("*", "/api/v0.1/posts", posts_handler),
+        web.route("*", "/api/v0.2/posts", post_handler),
         # web.route("*", "/api/v0.1/dialogs", dialogs_handler),
         # web.route("*", "/api/v0.1/messages", messages_handler),
     ])
