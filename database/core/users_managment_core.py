@@ -4,7 +4,6 @@ from faker import Faker
 from sqlalchemy import text
 
 
-# TODO: configure them in class
 def insert_user_query():
     return text("""
         insert into users (username, img, status, followed, country, city) 

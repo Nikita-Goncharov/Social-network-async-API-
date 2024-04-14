@@ -19,8 +19,11 @@ async def login_handler(request: web.Request) -> web.Response:
                     data = await request.json()
                     exists, user = await manager.is_user_exists(data.get("email"), data.get("password"))
                     if exists:
-                        token = binascii.hexlify(os.urandom(20)).decode()  # TODO: no regenerate token if exists
-                        await manager.update(User, {"id": user.id, "token": token})
+                        if user.token == "":
+                            token = binascii.hexlify(os.urandom(20)).decode()
+                            await manager.update(User, {"id": user.id, "token": token})
+                        else:
+                            token = user.token
                         return json_response({"success": True, "token": token, "message": "User logged successfully"})
                     else:
                         return json_response({"success": False, "message": "User is not found"}, status=404)

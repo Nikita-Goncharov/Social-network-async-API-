@@ -5,7 +5,6 @@ from werkzeug.security import check_password_hash
 from models.main_models import Post, User
 
 
-# TODO: chaining
 class Manager:
     def __init__(self, session: AsyncSession):
         self.session = session

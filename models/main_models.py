@@ -69,4 +69,4 @@ class User(Base):
     token: Mapped[str] = mapped_column(String(300), default="")
     password_hash: Mapped[str] = mapped_column(String(300))
 
-    profile: Mapped[Profile] = relationship()
+    profile: Mapped[Profile] = relationship("Profile", lazy="selectin")
