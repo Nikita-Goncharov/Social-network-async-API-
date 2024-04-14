@@ -7,6 +7,7 @@ from database.base_orm import async_session_factory
 from .json_response import json_response
 from models.manager import Manager, UserManager
 from models.main_models import User, Profile
+from middleware.token_check_middleware import user_token_required
 
 
 async def login_handler(request: web.Request) -> web.Response:
@@ -18,7 +19,7 @@ async def login_handler(request: web.Request) -> web.Response:
                     data = await request.json()
                     exists, user = await manager.is_user_exists(data.get("email"), data.get("password"))
                     if exists:
-                        token = binascii.hexlify(os.urandom(20)).decode()
+                        token = binascii.hexlify(os.urandom(20)).decode()  # TODO: no regenerate token if exists
                         await manager.update(User, {"id": user.id, "token": token})
                         return json_response({"success": True, "token": token, "message": "User logged successfully"})
                     else:
@@ -66,6 +67,7 @@ async def register_handler(request: web.Request) -> web.Response:
             return json_response({"success": False, "message": f"Error: {str(ex)}"}, status=500)
 
 
+@user_token_required
 async def logout_handler(request: web.Request) -> web.Response:
     async with async_session_factory() as session:
         try:

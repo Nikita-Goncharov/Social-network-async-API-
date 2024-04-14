@@ -68,9 +68,18 @@ class PostManager(Manager):
 class UserManager(Manager):
     async def is_user_exists(self, email, password):
         cursor = await self.session.execute(select(User).where(User.email == email))
-        user = cursor.first()[0]
-        print(user)
-        if check_password_hash(user.password_hash, password):
+        user_tuple = cursor.first()
+        if user_tuple is not None:
+            user = user_tuple[0]
+            if check_password_hash(user.password_hash, password):
+                return True, user
+        return False, ()
+
+    async def is_user_exists_by_token(self, token):
+        cursor = await self.session.execute(select(User).where(User.token == token))
+        user_tuple = cursor.first()
+        if user_tuple is not None:
+            user = user_tuple[0]
             return True, user
         return False, ()
 
