@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import ForeignKey, String, Date, Text
+from sqlalchemy import ForeignKey, String, Date, Text, Boolean
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -12,9 +12,6 @@ class Base(AsyncAttrs, DeclarativeBase):
 
     def as_dict(self):
         return {col.name: getattr(self, col.name) for col in self.__table__.columns}
-
-    async def save(self):
-        pass
 
 
 class Dialog(Base):
@@ -53,7 +50,7 @@ class Profile(Base):
     city: Mapped[str] = mapped_column(String(250))
     birth_date: Mapped[date]
     created: Mapped[date] = mapped_column(Date(), default=date.today())
-    followed: Mapped[bool]
+    followed: Mapped[bool] = mapped_column(Boolean, default=False)
 
     user: Mapped[int] = mapped_column(
         ForeignKey("user.id"),
@@ -68,7 +65,8 @@ class User(Base):
     __tablename__ = "user"
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String(200))
-    email: Mapped[str] = mapped_column(String(250))
+    email: Mapped[str] = mapped_column(String(250), unique=True)
+    token: Mapped[str] = mapped_column(String(300), default="")
     password_hash: Mapped[str] = mapped_column(String(300))
 
     profile: Mapped[Profile] = relationship()

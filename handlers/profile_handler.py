@@ -15,7 +15,7 @@ async def profile_handler(request: web.Request) -> web.Response:
                 case "GET":
                     if request.rel_url.query.get("profile_id", False):
                         profile_id = int(request.rel_url.query.get("profile_id"))
-                        profile = await manager.get(Profile, profile_id)
+                        profile = await manager.get_by_id(Profile, profile_id)
                         profile_response = {
                             "success": True,
                             "message": "User profile",

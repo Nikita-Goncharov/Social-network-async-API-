@@ -21,6 +21,7 @@ if __name__ == "__main__":
         web.route("*", "/api/v0.2/profiles", profile_handler),
         web.post("/api/v0.2/pull_repository_changes", github_pull_updates),
         web.route("*", "/api/v0.2/posts", post_handler),
+
         # web.route("*", "/api/v0.1/dialogs", dialogs_handler),
         # web.route("*", "/api/v0.1/messages", messages_handler),
     ])

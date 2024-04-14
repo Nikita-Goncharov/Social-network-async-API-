@@ -18,7 +18,7 @@ async def post_handler(request: web.Request) -> web.Response:
                     profile_id = int(request.rel_url.query.get("profile_id", 0))
 
                     count = count if count <= 100 else 100
-                    posts, total_count = await manager.pagination_getting_posts_from_profile(Post, profile_id, page=page, count=count)
+                    posts, total_count = await manager.pagination_getting_posts_from_profile(profile_id, page=page, count=count)
                     posts = [post[0].as_dict() for post in posts]
                     response = {
                         "success": True,
@@ -28,7 +28,7 @@ async def post_handler(request: web.Request) -> web.Response:
                     }
                     return json_response(response)
                 case "POST":
-                    post_data = await request.json()
+                    post_data = await request.json()  # TODO: check if profile it is  user own, not another user
                     await manager.create(Post, post_data)
                     return json_response({"success": True, "message": "Post added"})
                 case _:
