@@ -2,7 +2,7 @@ import asyncio
 
 from aiohttp import web
 
-from handlers.profile_handler import profile_get_handler, profile_put_handler
+from handlers.profile_handler import profile_get_handler, profiles_get_handler, profile_put_handler
 from handlers.service_handler import github_pull_updates, api_docs
 from handlers.auth_handler import logout_handler, login_handler, register_handler, whoami_handler
 from handlers.post_handler import post_get_handler, post_create_handler
@@ -19,7 +19,8 @@ if __name__ == "__main__":
         web.post("/api/v0.2/logout", logout_handler),
         web.get("/api/v0.2/whoami", whoami_handler),
 
-        web.get("/api/v0.2/profiles", profile_get_handler),
+        web.get("/api/v0.2/profile", profile_get_handler),
+        web.get("/api/v0.2/profiles", profiles_get_handler),
         web.put("/api/v0.2/profiles", profile_put_handler),
 
 
