@@ -1,6 +1,7 @@
+import hashlib
+
 from sqlalchemy import select, update, delete, func
 from sqlalchemy.ext.asyncio import AsyncSession
-from werkzeug.security import check_password_hash
 
 from models.main_models import Post, User
 
@@ -70,7 +71,7 @@ class UserManager(Manager):
         user_tuple = cursor.first()
         if user_tuple is not None:
             user = user_tuple[0]
-            if check_password_hash(user.password_hash, password):
+            if user.password_hash == hashlib.md5(password.encode("utf-8")).hexdigest():
                 return True, user
         return False, ()
 
@@ -80,6 +81,14 @@ class UserManager(Manager):
         if user_tuple is not None:
             user = user_tuple[0]
             return True, user
+        return False, ()
+
+    async def get_profile_by_token(self, token):
+        cursor = await self.session.execute(select(User).where(User.token == token))
+        user_tuple = cursor.first()
+        if user_tuple is not None:
+            user = user_tuple[0]
+            return True, user.profile
         return False, ()
 
     async def remove_user_token(self, token):

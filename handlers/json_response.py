@@ -4,6 +4,7 @@ from typing import Optional
 from aiohttp.typedefs import LooseHeaders
 from aiohttp.web_response import Response
 
+
 def json_response(
     data,
     *,
@@ -17,10 +18,6 @@ def json_response(
     """Original json_response: aiohttp.web_response.py
 
     """
-    if headers is None:
-        headers = {"Access-Control-Allow-Origin": "*"}
-    else:
-        headers.add("Access-Control-Allow-Origin", "*")
 
     text = json.dumps(data, default=str)  # For my records from tables i need serialize date/datetime fields
     return Response(

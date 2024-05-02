@@ -1,6 +1,6 @@
-from datetime import date
+from datetime import date, datetime
 
-from sqlalchemy import ForeignKey, String, Date, Text, Boolean
+from sqlalchemy import ForeignKey, String, Text, Boolean, DateTime
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -19,14 +19,14 @@ class Dialog(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     first_profile: Mapped[int] = mapped_column(ForeignKey("profile.id"))
     second_profile: Mapped[int] = mapped_column(ForeignKey("profile.id"))
-    created: Mapped[date] = mapped_column(Date(), default=date.today())
+    created: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now())
 
 
 class Message(Base):
     __tablename__ = "message"
     id: Mapped[int] = mapped_column(primary_key=True)
     text: Mapped[str] = mapped_column(String(300))
-    created: Mapped[date] = mapped_column(Date(), default=date.today())
+    created: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now())
     dialog: Mapped[Dialog] = mapped_column(ForeignKey("dialog.id"))
 
 
@@ -35,7 +35,7 @@ class Post(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(200))
     description: Mapped[str] = mapped_column(Text)
-
+    created: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now())
     profile: Mapped[int] = mapped_column(ForeignKey("profile.id"))
 
 
@@ -48,8 +48,8 @@ class Profile(Base):
     web_site: Mapped[str] = mapped_column(String(250))
     country: Mapped[str] = mapped_column(String(250))
     city: Mapped[str] = mapped_column(String(250))
-    birth_date: Mapped[date]
-    created: Mapped[date] = mapped_column(Date(), default=date.today())
+    birth_date: Mapped[datetime] = mapped_column(DateTime(), nullable=True)
+    created: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now())
     followed: Mapped[bool] = mapped_column(Boolean, default=False)
 
     user: Mapped[int] = mapped_column(
@@ -57,6 +57,7 @@ class Profile(Base):
         unique=True,  # if without unique, then will relation many-to-one, now it is one-to-one
         nullable=True  # nullable because first of all we create profile, and then user
     )
+    user_obj: Mapped["User"] = relationship(back_populates="profile", lazy="joined")
 
     posts: Mapped[Post] = relationship()
 
@@ -69,4 +70,4 @@ class User(Base):
     token: Mapped[str] = mapped_column(String(300), default="")
     password_hash: Mapped[str] = mapped_column(String(300))
 
-    profile: Mapped[Profile] = relationship("Profile", lazy="selectin")
+    profile: Mapped[Profile] = relationship(back_populates="user_obj", lazy="joined")

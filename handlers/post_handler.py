@@ -37,7 +37,7 @@ async def post_create_handler(request: web.Request) -> web.Response:
             post_manager = PostManager(session)
             user_manager = UserManager(session)
             post_data = await request.json()
-            request_user_token = request.headers.get("AuthToken")
+            request_user_token = request.headers.get("Authorization")
             _, user = await user_manager.is_user_exists_by_token(request_user_token)  # we already check if exists in middleware
             post_data["profile"] = user.profile.id
             await post_manager.create(Post, post_data)

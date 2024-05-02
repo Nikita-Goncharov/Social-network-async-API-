@@ -13,10 +13,17 @@ async def profile_get_handler(request: web.Request) -> web.Response:
             manager = Manager(session)
             profile_id = int(request.rel_url.query.get("profile_id"))
             profile = await manager.get_by_id(Profile, profile_id)
+            profile_dict = profile.as_dict()
+            profile_dict["user"] = {
+                "id": profile.user_obj.id,
+                "username": profile.user_obj.username,
+                "email": profile.user_obj.email
+            }
+
             profile_response = {
                 "success": True,
                 "message": "User profile",
-                "profile": profile.as_dict()
+                "profile": profile_dict
             }
             return json_response(profile_response)
         except Exception as ex:
@@ -32,11 +39,16 @@ async def profiles_get_handler(request: web.Request) -> web.Response:
             count = int(request.rel_url.query.get("count", 10))
             count = count if count <= 100 else 100
             profiles, total_count = await manager.pagination_getting(Profile, page=page, count=count)
-            profiles = [profile[0].as_dict() for profile in profiles]
+            profiles_json_list = []
+            for profile in profiles:
+                profile = profile[0]
+                profile_dict = profile.as_dict()
+                profile_dict["user"] = {"id": profile.user_obj.id, "username": profile.user_obj.username, "email": profile.user_obj.email}
+                profiles_json_list.append(profile_dict)
             response = {
                 "success": True,
                 "message": "Profiles list",
-                "profiles": profiles,
+                "profiles": profiles_json_list,
                 "total_count": total_count
             }
             return json_response(response)
@@ -49,7 +61,7 @@ async def profile_put_handler(request: web.Request) -> web.Response:
     async with async_session_factory() as session:
         try:
             manager = UserManager(session)
-            request_user_token = request.headers.get("AuthToken")
+            request_user_token = request.headers.get("Authorization")
             _, user = await manager.is_user_exists_by_token(request_user_token)
             updated_profile = await request.json()
             updated_profile["id"] = user.profile.id

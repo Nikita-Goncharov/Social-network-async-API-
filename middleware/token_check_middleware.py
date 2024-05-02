@@ -7,7 +7,7 @@ def user_token_required(view):
     async def wrapper(*args, **kwargs):
         async with async_session_factory() as session:
             request = args[-1]
-            request_user_token = request.headers.get("AuthToken")
+            request_user_token = request.headers.get("Authorization")
             if request_user_token is not None:
                 manager = UserManager(session)
                 exists, user = await manager.is_user_exists_by_token(request_user_token)

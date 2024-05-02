@@ -1,8 +1,8 @@
-import binascii
 import os
+import hashlib
+import binascii
 
 from aiohttp import web
-from werkzeug.security import generate_password_hash
 
 from database.base_orm import async_session_factory
 from middleware.token_check_middleware import user_token_required
@@ -30,6 +30,7 @@ async def login_handler(request: web.Request) -> web.Response:
             return json_response({"success": False, "message": f"Error: {str(ex)}"}, status=500)
 
 
+# TODO: check if user exists already
 async def register_handler(request: web.Request) -> web.Response:
     async with async_session_factory() as session:
         try:
@@ -38,17 +39,17 @@ async def register_handler(request: web.Request) -> web.Response:
             user_data = {
                 "username": data.get("username"),
                 "email": data.get("email"),
-                "password_hash": generate_password_hash(data.get("password"))
+                "password_hash": hashlib.md5(data.get("password").encode("utf-8")).hexdigest()
             }
             user = await manager.create(User, user_data)
             profile_data = {
-                "img": data.get("img"),
-                "status": data.get("status"),
-                "education": data.get("education"),
-                "web_site": data.get("web_site"),
-                "country": data.get("country"),
-                "city": data.get("city"),
-                "birth_date": data.get("birth_date"),
+                "img": "",
+                "status": "",
+                "education": "",
+                "web_site": "",
+                "country": "",
+                "city": "",
+                "birth_date": None,
                 "user": user.id
             }
             profile = await manager.create(Profile, profile_data)
@@ -62,7 +63,7 @@ async def logout_handler(request: web.Request) -> web.Response:
     async with async_session_factory() as session:
         try:
             manager = UserManager(session)
-            request_user_token = request.headers.get("AuthToken")
+            request_user_token = request.headers.get("Authorization")
             await manager.remove_user_token(request_user_token)
             return json_response({"success": True, "message": "User logout successfully"})
         except Exception as ex:
@@ -74,13 +75,23 @@ async def whoami_handler(request: web.Request) -> web.Response:
     async with async_session_factory() as session:
         try:
             manager = UserManager(session)
-            request_user_token = request.headers.get("AuthToken")
+            request_user_token = request.headers.get("Authorization")
             _, user = await manager.is_user_exists_by_token(request_user_token)
+            _, profile = await manager.get_profile_by_token(user.token)
             data = {
                 "id": user.id,
                 "username": user.username,
                 "email": user.email,
-                "token": user.token
+                "token": user.token,
+                "profile": {
+                    "img": profile.img,
+                    "status": profile.status,
+                    "education": profile.education,
+                    "web_site": profile.web_site,
+                    "country": profile.country,
+                    "city": profile.city,
+                    "birth_date": profile.birth_date
+                }
             }
             return json_response({"success": True, "data": data, "message": ""})
         except Exception as ex:

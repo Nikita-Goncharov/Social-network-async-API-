@@ -26,6 +26,7 @@ async_session_factory = async_sessionmaker(database_engine, expire_on_commit=Fal
 
 async def add_default_data():
     async with database_engine.begin() as conn:
+        # await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)  # because we should wait until tables will create
     async with async_session_factory() as session:
         task = asyncio.create_task(fill_db_with_default_data(session))

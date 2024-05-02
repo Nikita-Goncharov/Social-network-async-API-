@@ -1,8 +1,9 @@
+import hashlib
+
 from random import randint
 from datetime import date
 
 from faker import Faker
-from werkzeug.security import check_password_hash, generate_password_hash
 
 from models.main_models import User, Profile, Post
 from models.manager import Manager
@@ -37,7 +38,7 @@ async def fill_db_with_default_data(session):
             user_data = {
                 "username": fake.name(),
                 "email": fake.email(),
-                "password_hash": generate_password_hash(fake.password(length=10)),  # cpu bound operation # TODO: 5 seconds!
+                "password_hash": hashlib.md5(fake.password(length=10).encode("utf-8")).hexdigest(),  # cpu bound operation # TODO: 3 seconds!
                 "profile": profile,
             }
             user = await manager.create(User, user_data)
