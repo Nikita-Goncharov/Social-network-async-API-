@@ -4,7 +4,7 @@ import asyncio
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-from database.orm.base_db_content import fill_db_with_default_data
+from database.base_db_content import fill_db_with_default_data
 from models.main_models import Base
 
 load_dotenv()

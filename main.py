@@ -41,7 +41,6 @@ if __name__ == "__main__":
         web.get("/api/v0.2/profiles", profiles_get_handler),
         web.put("/api/v0.2/profiles", profile_put_handler),
 
-
         web.get("/api/v0.2/posts", post_get_handler),
         web.post("/api/v0.2/posts", post_create_handler),
 
