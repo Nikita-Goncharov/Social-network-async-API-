@@ -79,20 +79,21 @@ async def whoami_handler(request: web.Request) -> web.Response:
             _, user = await manager.is_user_exists_by_token(request_user_token)
             _, profile = await manager.get_profile_by_token(user.token)
             data = {
-                "id": user.id,
-                "username": user.username,
-                "email": user.email,
-                "token": user.token,
-                "profile": {
-                    "img": profile.img,
-                    "status": profile.status,
-                    "education": profile.education,
-                    "web_site": profile.web_site,
-                    "country": profile.country,
-                    "city": profile.city,
-                    "birth_date": profile.birth_date
+                "id": profile.id,
+                "img": profile.img,
+                "status": profile.status,
+                "education": profile.education,
+                "web_site": profile.web_site,
+                "country": profile.country,
+                "city": profile.city,
+                "birth_date": profile.birth_date,
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "token": user.token,
                 }
             }
-            return json_response({"success": True, "data": data, "message": ""})
+            return json_response({"success": True, "profile": data, "message": ""})
         except Exception as ex:
             return json_response({"success": False, "message": f"Error: {str(ex)}"}, status=500)

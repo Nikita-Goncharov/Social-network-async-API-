@@ -11,7 +11,7 @@ from handlers.post_handler import post_get_handler, post_create_handler
 from database.base_orm import add_default_data
 
 
-app = web.Application(middlewares=[cors_middleware(allow_all=True)])
+app = web.Application(middlewares=[cors_middleware(allow_all=True, allow_credentials=True)])
 
 if __name__ == "__main__":
     # LOG_FORMAT_MAP
