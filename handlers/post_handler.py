@@ -40,7 +40,7 @@ async def post_create_handler(request: web.Request) -> web.Response:
             request_user_token = request.headers.get("Authorization")
             _, user = await user_manager.is_user_exists_by_token(request_user_token)  # we already check if exists in middleware
             post_data["profile"] = user.profile.id
-            await post_manager.create(Post, post_data)
-            return json_response({"success": True, "message": "Post added"})
+            new_post = await post_manager.create(Post, post_data)
+            return json_response({"success": True, "post_id": new_post.id, "message": "Post added"})
         except Exception as ex:
             return json_response({"success": False, "message": f"Error: {str(ex)}"}, status=500)
