@@ -119,3 +119,12 @@ class FollowProfileManager(Manager):
         if following_tuple is not None:
             return True
         return False
+
+    async def get_followed_profile_ids(self, follower_id: int) -> list[int, ...]:
+        cursor = await self.session.execute(select(FollowProfile).where(FollowProfile.follower == follower_id))
+        followed_profiles = cursor.all()
+        profile_ids = []
+        for profile in followed_profiles:
+            profile = profile[0]
+            profile_ids.append(profile.who_are_followed)
+        return profile_ids

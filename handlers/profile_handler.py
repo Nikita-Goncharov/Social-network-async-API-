@@ -3,7 +3,7 @@ from aiohttp import web
 from database.base_orm import async_session_factory
 from .json_response import json_response
 from models.main_models import Profile
-from models.manager import UserManager, Manager
+from models.manager import UserManager, Manager, FollowProfileManager
 from middleware.token_check_middleware import user_token_required
 
 
@@ -34,15 +34,33 @@ async def profiles_get_handler(request: web.Request) -> web.Response:
     async with async_session_factory() as session:
         try:
             manager = Manager(session)
+            user_manager = UserManager(session)
+            following_manager = FollowProfileManager(session)
             # url params: page=1, 2, 3 .....(by default=1) and count=10, 20, 33(by default=10, maximum=100)
             page = int(request.rel_url.query.get("page", 1))
             count = int(request.rel_url.query.get("count", 10))
+            request_user_token = request.headers.get("Authorization")
+
             count = count if count <= 100 else 100
             profiles, total_count = await manager.pagination_getting(Profile, page=page, count=count)
+
+            if request_user_token is not None:
+                exists, profile = await user_manager.get_profile_by_token(request_user_token)
+                if exists:
+                    followed_profiles = await following_manager.get_followed_profile_ids(profile.id)
+                else:
+                    return json_response({"success": False, "message": f"Error: There is no user logged with that token"}, status=404)
+            else:
+                followed_profiles = []
+
             profiles_json_list = []
             for profile in profiles:
                 profile = profile[0]
                 profile_dict = profile.as_dict()
+
+                if request_user_token is not None:  # TODO: add followed if header token exists
+                    profile_dict["followed"] = True if profile_dict["id"] in followed_profiles else False
+
                 profile_dict["user"] = {"id": profile.user_obj.id, "username": profile.user_obj.username, "email": profile.user_obj.email}
                 profiles_json_list.append(profile_dict)
             response = {

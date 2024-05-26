@@ -57,7 +57,6 @@ class Profile(Base):
     city: Mapped[str] = mapped_column(String(250))
     birth_date: Mapped[datetime] = mapped_column(DateTime(), nullable=True)
     created: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now())
-    followed: Mapped[bool] = mapped_column(Boolean, default=False)
 
     user: Mapped[int] = mapped_column(
         ForeignKey("user.id"),

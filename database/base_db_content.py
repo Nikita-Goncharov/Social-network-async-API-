@@ -26,7 +26,6 @@ async def fill_db_with_default_data(session):
             profile_data = {
                 "img": f"https://api.dicebear.com/7.x/adventurer/svg?seed={avatar_name}",
                 "status": fake.sentence(nb_words=10),
-                "followed": fake.pybool(),
                 "country": fake.country(),
                 "city": fake.city(),
                 "education": "High school",

@@ -15,8 +15,8 @@ async def un_follow_handler(request: web.Request) -> web.Response:
             following_manager = FollowProfileManager(session)
             request_json = await request.json()
             profile_id = int(request_json.get("profile_id"))
-            token = request.headers.get("Authorization")
-            exists, profile = await user_manager.get_profile_by_token(token)
+            request_user_token = request.headers.get("Authorization")
+            exists, profile = await user_manager.get_profile_by_token(request_user_token)
             match(request.method):
                 case "POST":
                     if exists:
