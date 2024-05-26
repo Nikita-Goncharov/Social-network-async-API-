@@ -39,6 +39,13 @@ class Post(Base):
     profile: Mapped[int] = mapped_column(ForeignKey("profile.id"))
 
 
+class FollowProfile(Base):
+    __tablename__ = "follow_profile"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    follower: Mapped[int] = mapped_column(ForeignKey("profile.id"))
+    who_are_followed: Mapped[int] = mapped_column(ForeignKey("profile.id"))
+
+
 class Profile(Base):
     __tablename__ = "profile"
     id: Mapped[int] = mapped_column(primary_key=True)

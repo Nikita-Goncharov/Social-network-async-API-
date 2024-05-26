@@ -8,6 +8,7 @@ from handlers.profile_handler import profile_get_handler, profiles_get_handler, 
 from handlers.service_handler import github_pull_updates, api_docs
 from handlers.auth_handler import logout_handler, login_handler, register_handler, whoami_handler
 from handlers.post_handler import post_get_handler, post_create_handler
+from handlers.un_follow_handler import un_follow_handler
 from database.base_orm import add_default_data
 
 
@@ -43,6 +44,9 @@ if __name__ == "__main__":
 
         web.get("/api/v0.2/posts", post_get_handler),
         web.post("/api/v0.2/posts", post_create_handler),
+
+        web.post("/api/v0.2/follow", un_follow_handler),
+        web.delete("/api/v0.2/follow", un_follow_handler),
 
         # web.route("*", "/api/v0.1/dialogs", dialogs_handler),
         # web.route("*", "/api/v0.1/messages", messages_handler),

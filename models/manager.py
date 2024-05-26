@@ -3,7 +3,7 @@ import hashlib
 from sqlalchemy import select, update, delete, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.main_models import Post, User
+from models.main_models import Post, User, Profile, FollowProfile
 
 
 class Manager:
@@ -91,6 +91,31 @@ class UserManager(Manager):
             return True, user.profile
         return False, ()
 
+    async def is_profile_exists(self, profile_id: int) -> bool:
+        cursor = await self.session.execute(select(Profile).where(Profile.id == profile_id))
+        profile_tuple = cursor.first()
+        if profile_tuple is not None:
+            return True
+        return False
+
     async def remove_user_token(self, token):
         await self.session.execute(update(User).where(User.token == token).values(token=""))
         await self.session.commit()
+
+
+class FollowProfileManager(Manager):
+    async def delete_following(self, follower_id: int, profile_id: int) -> None:
+        await self.session.execute(delete(FollowProfile).where(
+            FollowProfile.follower == follower_id,
+            FollowProfile.who_are_followed == profile_id
+        ))
+        await self.session.commit()
+
+    async def is_following_exists(self, follower_id: int, who_are_followed: int) -> bool:
+        cursor = await self.session.execute(select(FollowProfile).where(
+            FollowProfile.follower == follower_id, FollowProfile.who_are_followed == who_are_followed
+        ))
+        following_tuple = cursor.first()
+        if following_tuple is not None:
+            return True
+        return False
