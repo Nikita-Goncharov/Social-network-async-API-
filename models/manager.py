@@ -3,7 +3,7 @@ import hashlib
 from sqlalchemy import select, update, delete, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.main_models import Post, User, Profile, FollowProfile
+from models.main_models import Post, User, Profile, FollowProfile, Dialog, Message
 
 
 class Manager:
@@ -128,3 +128,23 @@ class FollowProfileManager(Manager):
             profile = profile[0]
             profile_ids.append(profile.who_are_followed)
         return profile_ids
+
+
+class DialogManager(Manager):
+    async def pagination_getting_dialogs_for_profile(self, profile_id: int, page: int, count: int):  # TODO: hints
+        record_start_from = (page - 1) * count
+
+        cursor = await self.session.execute(
+            select(Dialog).where(
+                (Dialog.first_profile == profile_id) | (Dialog.second_profile == profile_id)
+            ).limit(count).offset(record_start_from)
+        )
+
+        count_records = select(
+            func.count("*").label("total")
+        ).select_from(Dialog).where((Dialog.first_profile == profile_id) | (Dialog.second_profile == profile_id))
+
+        total_count_cursor = await self.session.execute(count_records)
+        instances = cursor.all()
+        total_count = total_count_cursor.mappings().first()
+        return instances, dict(total_count)["total"]

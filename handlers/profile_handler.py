@@ -58,7 +58,7 @@ async def profiles_get_handler(request: web.Request) -> web.Response:
                 profile = profile[0]
                 profile_dict = profile.as_dict()
 
-                if request_user_token is not None:  # TODO: add followed if header token exists
+                if request_user_token is not None:
                     profile_dict["followed"] = True if profile_dict["id"] in followed_profiles else False
 
                 profile_dict["user"] = {"id": profile.user_obj.id, "username": profile.user_obj.username, "email": profile.user_obj.email}
