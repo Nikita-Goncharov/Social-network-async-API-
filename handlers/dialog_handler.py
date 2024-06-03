@@ -1,7 +1,7 @@
 from aiohttp import web
 
 from models.main_models import Dialog
-from handlers.json_response import json_response
+from utils.json_response import json_response
 from database.base_orm import async_session_factory
 from models.manager import DialogManager, UserManager, Manager
 from middleware.token_check_middleware import user_token_required
@@ -33,7 +33,7 @@ async def dialog_get_handler(request: web.Request) -> web.Response:
 
 
 @user_token_required
-async def dialog_post_handler(request: web.Request) -> web.Response:
+async def dialog_post_handler(request: web.Request) -> web.Response:  # TODO: can`t create dialog if exists
     async with async_session_factory() as session:
         try:
             manager = Manager(session)
@@ -48,6 +48,20 @@ async def dialog_post_handler(request: web.Request) -> web.Response:
                 "second_profile": another_person_profile_id
             }
             await manager.create(Dialog, data)
+            return json_response({"success": True, "message": "Dialog created successfully"})
+        except Exception as ex:
+            return json_response({"success": False, "message": f"Error: {str(ex)}"}, status=500)
+
+
+@user_token_required
+async def dialog_delete_handler(request: web.Request) -> web.Response:
+    async with async_session_factory() as session:
+        try:
+            dialog_manager = DialogManager(session)
+            request_body = await request.json()
+            dialog_id = request_body["dialog_id"]
+
+            await dialog_manager.delete_dialog(dialog_id)
             return json_response({"success": True, "message": "Dialog created successfully"})
         except Exception as ex:
             return json_response({"success": False, "message": f"Error: {str(ex)}"}, status=500)

@@ -1,6 +1,7 @@
 import hashlib
 
-from sqlalchemy import select, update, delete, func
+import sqlalchemy.exc
+from sqlalchemy import select, update, delete, func, and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.main_models import Post, User, Profile, FollowProfile, Dialog, Message
@@ -22,14 +23,15 @@ class Manager:
         await self.session.commit()
 
     async def delete(self, model, instance_id):
-        await self.session.execute(delete(model).where(id=instance_id))
+        await self.session.execute(delete(model).where(model.id == instance_id))
         await self.session.commit()
 
     async def filter(self, model, **kwargs):
-        cursor = await self.session.execute(select(model).where(**kwargs))
+        cursor = await self.session.execute(select(model).where(**kwargs))  # TODO: fix .where statement
         return cursor.all()
 
     async def get_by_id(self, model, instance_id):
+        # instance or None
         return await self.session.get(model, instance_id)
 
     async def pagination_getting(self, model, page=1, count=10):
@@ -139,12 +141,32 @@ class DialogManager(Manager):
                 (Dialog.first_profile == profile_id) | (Dialog.second_profile == profile_id)
             ).limit(count).offset(record_start_from)
         )
+        instances = cursor.all()
 
         count_records = select(
             func.count("*").label("total")
         ).select_from(Dialog).where((Dialog.first_profile == profile_id) | (Dialog.second_profile == profile_id))
 
         total_count_cursor = await self.session.execute(count_records)
-        instances = cursor.all()
         total_count = total_count_cursor.mappings().first()
+        return instances, dict(total_count)["total"]
+
+    async def delete_dialog(self, dialog_id) -> None:
+        await self.session.execute(delete(Dialog).where(Dialog.id == dialog_id))
+        await self.session.commit()
+
+
+class MessageManager(Manager):
+    async def pagination_getting_messages_by_dialog(self, dialog_id: int, page: int, count: int):
+        record_start_from = (page - 1) * count
+
+        cursor = await self.session.execute(
+            select(Message).where(Message.dialog == dialog_id).limit(count).offset(record_start_from)
+        )
+        instances = cursor.all()
+
+        count_records = select(func.count("*").label("total")).select_from(Message).where(Message.dialog == dialog_id)
+        total_count_cursor = await self.session.execute(count_records)
+        total_count = total_count_cursor.mappings().first()
+
         return instances, dict(total_count)["total"]

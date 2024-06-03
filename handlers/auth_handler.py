@@ -8,7 +8,7 @@ from database.base_orm import async_session_factory
 from middleware.token_check_middleware import user_token_required
 from models.main_models import User, Profile
 from models.manager import Manager, UserManager
-from .json_response import json_response
+from utils.json_response import json_response
 
 
 async def login_handler(request: web.Request) -> web.Response:

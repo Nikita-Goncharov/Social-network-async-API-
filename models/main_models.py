@@ -28,7 +28,7 @@ class Message(Base):
     text: Mapped[str] = mapped_column(String(300))
     created: Mapped[datetime] = mapped_column(DateTime(), default=datetime.now())
     owner: Mapped[int] = mapped_column(ForeignKey("profile.id"))
-    dialog: Mapped[Dialog] = mapped_column(ForeignKey("dialog.id"))
+    dialog: Mapped[int] = mapped_column(ForeignKey("dialog.id"))
 
 
 class Post(Base):

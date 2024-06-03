@@ -1,7 +1,7 @@
 from aiohttp import web
 
 from database.base_orm import async_session_factory
-from .json_response import json_response
+from utils.json_response import json_response
 from models.main_models import Profile
 from models.manager import UserManager, Manager, FollowProfileManager
 from middleware.token_check_middleware import user_token_required

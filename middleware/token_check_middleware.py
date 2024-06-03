@@ -1,4 +1,4 @@
-from handlers.json_response import json_response
+from utils.json_response import json_response
 from models.manager import UserManager
 from database.base_orm import async_session_factory
 

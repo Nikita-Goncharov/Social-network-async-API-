@@ -1,5 +1,5 @@
 from utils.jwt_generate import generate_user_token
-from handlers.json_response import json_response
+from utils.json_response import json_response
 
 
 def jwt_required(view):
