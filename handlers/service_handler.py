@@ -2,25 +2,41 @@ import os
 import subprocess
 
 from aiohttp import web
+from git import Repo
 
-GITHUB_HOOK_SECRET = os.environ.get("GITHUB_HOOK_SECRET")
+from utils.generate_github_signature import generate_github_signature
 
 
-async def github_pull_updates(request: web.Request) -> web.Response:  # TODO: change subprocess.run to something what can be async
-    if request.headers.get("X-Hub-Signature") != GITHUB_HOOK_SECRET:
+async def github_pull_updates(request: web.Request) -> web.Response:
+    github_signature = request.headers.get("X-Hub-Signature")
+    payload = await request.json()
+    GITHUB_HOOK_SECRET = os.environ.get("GITHUB_HOOK_SECRET")
+
+    print("Signature header from request:", github_signature)
+    print("Secret from config:", GITHUB_HOOK_SECRET)
+    print("Request body:", payload)
+
+    generated_signature = generate_github_signature(GITHUB_HOOK_SECRET.encode("utf-8"), payload)
+    if github_signature != generated_signature:
+        print("X-Hub-Signature is incorrect")
+        print("Generated signature is:", generated_signature)
         return web.Response(text="Error. Secret keys are not the same", status=403)
 
-    try:
-        subprocess.run(f"git pull", shell=True)  # Pull changes from the GitHub repository
-    except subprocess.CalledProcessError as e:
-        return web.Response(text=f"Error pulling from GitHub: {e}", status=500)
+    repo = Repo()
+    repo.git.stash()
+    repo.remotes.origin.fetch()
+    develop_branch = repo.remote().refs['develop']
+    repo.git.merge(develop_branch)
+
+    repo.git.stash("pop")
 
     try:
-        # Reload app
-        subprocess.run(['touch', '/var/www/aiohttpsocialnetworkapi_pythonanywhere_com_wsgi.py'], check=True)
-    except subprocess.CalledProcessError as e:
-        return web.Response(text=f"Error reloading application: {e}", status=500)
-
+        # TODO: Reload app restart nginx, supervisor
+        subprocess.run("sudo supervisorctl reread & sudo supervisorctl update & sudo systemctl reload nginx", check=True)
+    except subprocess.CalledProcessError as ex:
+        print("Can`t reload site")
+        return web.Response(text=f"Error reloading application: {ex}", status=500)
+    print("Webhook received and application reloaded successfully")
     return web.Response(text="Webhook received and application reloaded successfully", status=200)
 
 
