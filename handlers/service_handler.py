@@ -1,5 +1,5 @@
 import os
-import subprocess
+import json
 
 from aiohttp import web
 from git import Repo
@@ -10,37 +10,24 @@ from utils.generate_github_signature import generate_github_signature
 async def github_pull_updates(request: web.Request) -> web.Response:
     try:
         github_signature = request.headers.get("X-Hub-Signature")
-        payload = await request.json()
+        request_body = await request.json()
+        payload = json.dumps(request_body, separators=(',', ':'))
         GITHUB_HOOK_SECRET = os.environ.get("GITHUB_HOOK_SECRET")
 
-        print("Signature header from request:", github_signature)
-        print("Secret from config:", GITHUB_HOOK_SECRET)
-        print("Request body:", payload)
-
-        generated_signature = generate_github_signature(GITHUB_HOOK_SECRET.encode("utf-8"), payload)
+        generated_signature = generate_github_signature(GITHUB_HOOK_SECRET.encode("utf-8"), payload.encode("utf-8"))
         if github_signature != generated_signature:
-            print("X-Hub-Signature is incorrect")
-            print("Generated signature is:", generated_signature)
             return web.Response(text="Error. Secret keys are not the same", status=403)
 
         repo = Repo()
         repo.git.stash()
         origin = repo.remote("origin")
         origin.pull("develop")
-        # repo.remotes.origin.fetch()
-        # develop_branch = repo.remote().refs['develop']
-        # repo.git.merge(develop_branch)
         repo.git.stash("pop")
 
-        # try:
-        subprocess.run("sudo systemctl reload nginx", check=True)  # sudo supervisorctl reread & sudo supervisorctl update
-        # except subprocess.CalledProcessError as ex:
-        #     print("Can`t reload site")
-        #     return web.Response(text=f"Error reloading application: {ex}", status=500)
-        print("Webhook received and application reloaded successfully")
+        os.popen("sudo supervisorctl restart aiohttp_gunicorn && sudo systemctl reload nginx.service")
         return web.Response(text="Webhook received and application reloaded successfully", status=200)
     except Exception as ex:
-        return web.Response(text=f"Error reloading application: {ex}", status=500)
+        return web.Response(text=f"Error. Can`t reload service: {str(ex)}", status=500)
 
 
 async def api_docs(request: web.Request) -> web.Response:
