@@ -24,13 +24,15 @@ async def github_pull_updates(request: web.Request) -> web.Response:
 
     repo = Repo()
     repo.git.stash()
-    repo.remotes.origin.fetch()
-    develop_branch = repo.remote().refs['develop']
-    repo.git.merge(develop_branch)
+    origin = repo.remote("origin")
+    origin.pull("develop")
+    # repo.remotes.origin.fetch()
+    # develop_branch = repo.remote().refs['develop']
+    # repo.git.merge(develop_branch)
     repo.git.stash("pop")
 
     try:
-        subprocess.run("sudo supervisorctl reread & sudo supervisorctl update & sudo systemctl reload nginx", check=True)
+        subprocess.run("sudo systemctl reload nginx", check=True)  # sudo supervisorctl reread & sudo supervisorctl update
     except subprocess.CalledProcessError as ex:
         print("Can`t reload site")
         return web.Response(text=f"Error reloading application: {ex}", status=500)
