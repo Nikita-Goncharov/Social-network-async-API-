@@ -29,7 +29,7 @@ async def create_app() -> web.Application:
     # "i": "request_header",
     # "o": "response_header",
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, filename="aiohttp_logs.log")
     app.add_routes([
         web.get("/", api_docs),
         web.get(f"{API_PATH}", api_docs),

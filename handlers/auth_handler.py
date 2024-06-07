@@ -1,3 +1,4 @@
+import logging
 import os
 import hashlib
 import binascii
@@ -94,6 +95,7 @@ async def whoami_handler(request: web.Request) -> web.Response:
                     "token": user.token,
                 }
             }
+            logging.info(f"Whoami response: {data}")
             return json_response({"success": True, "profile": data, "message": ""})
         except Exception as ex:
             return json_response({"success": False, "message": f"Error: {str(ex)}"}, status=500)
