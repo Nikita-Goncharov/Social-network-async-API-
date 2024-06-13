@@ -13,7 +13,7 @@ async def github_pull_updates(request: web.Request) -> web.Response:
         github_signature = request.headers.get("X-Hub-Signature")
         request_body = await request.json()
         payload = json.dumps(request_body, separators=(',', ':'))
-        GITHUB_HOOK_SECRET = os.environ.get("GITHUB_HOOK_SECRET")\
+        GITHUB_HOOK_SECRET = os.environ.get("GITHUB_HOOK_SECRET")
 
         logging.info(f"Header github webhook signature: {github_signature}")
         logging.info(f"Github webhook payload: {payload}")

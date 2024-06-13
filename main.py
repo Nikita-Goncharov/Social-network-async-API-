@@ -16,20 +16,7 @@ API_PATH = "/api/v0.2/"
 
 async def create_app() -> web.Application:
     app = web.Application(middlewares=[cors_middleware(allow_all=True, allow_credentials=True)])
-    # LOG_FORMAT_MAP
-    # "a": "remote_address",
-    # "t": "request_start_time",
-    # "P": "process_id",
-    # "r": "first_request_line",
-    # "s": "response_status",
-    # "b": "response_size",
-    # "T": "request_time",
-    # "Tf": "request_time_frac",
-    # "D": "request_time_micro",
-    # "i": "request_header",
-    # "o": "response_header",
-
-    logging.basicConfig(level=logging.INFO, filename="aiohttp_logs.log")
+    logging.basicConfig(level=logging.INFO, filename="aiohttp_logs.log", filemode="a")
     app.add_routes([
         web.get("/", api_docs),
         web.get(f"{API_PATH}", api_docs),
