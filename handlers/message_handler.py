@@ -27,7 +27,7 @@ async def message_get_handler(request: web.Request) -> web.Response:
             response = {
                 "success": True,
                 "message": "Messages list",
-                "posts": messages,
+                "messages": messages,
                 "total_count": total_count
             }
             return json_response(response)

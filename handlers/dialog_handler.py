@@ -24,7 +24,7 @@ async def dialog_get_handler(request: web.Request) -> web.Response:
             response = {
                 "success": True,
                 "message": "Dialogs list",
-                "posts": dialogs,
+                "dialogs": dialogs,
                 "total_count": total_count
             }
             return json_response(response)
