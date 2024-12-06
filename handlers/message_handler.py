@@ -54,8 +54,20 @@ async def message_post_handler(request: web.Request) -> web.Response:
             # TODO: check if this profile have permissions to dialog
             dialog = await manager.get_by_id(Dialog, dialog_id)
             if dialog is not None:
-                await manager.create(Message, message_data)
-                return json_response({"success": True, "message": "Message created successfully"})
+                message = await manager.create(Message, message_data)
+                return json_response(
+                    {
+                        "success": True,
+                        "profile_message": {
+                            "id": message.id,
+                            "text": message.text,
+                            "created": message.created,
+                            "owner": message.owner,
+                            "dialog": message.dialog
+                        },
+                        "message": "Message created successfully"
+                    }
+                )
             else:
                 return json_response({"success": False, "message": "There is no that dialog"}, status=404)
         except Exception as ex:

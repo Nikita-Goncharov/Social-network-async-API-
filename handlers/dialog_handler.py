@@ -47,8 +47,14 @@ async def dialog_post_handler(request: web.Request) -> web.Response:  # TODO: ca
                 "first_profile": profile.id,
                 "second_profile": another_person_profile_id
             }
-            await manager.create(Dialog, data)
-            return json_response({"success": True, "message": "Dialog created successfully"})
+            dialog = await manager.create(Dialog, data)
+            dialog_data = {
+                "id": dialog.id,
+                "first_profile": dialog.first_profile,
+                "second_profile": dialog.second_profile,
+                "created": dialog.created
+            }
+            return json_response({"success": True, "dialog": dialog_data, "message": "Dialog created successfully"})
         except Exception as ex:
             return json_response({"success": False, "message": f"Error: {str(ex)}"}, status=500)
 
